@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#f7f7f5">
+    <title>Notes — Simple</title>
+    <style>
+        :root {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            color: #232522;
+            background: #f7f7f5;
+            font-size: 15px
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        header {
+            height: 62px;
+            border-bottom: 1px solid #e4e5e1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            background: #fff
+        }
+
+        h1 {
+            font-size: 19px;
+            font-weight: 650;
+            letter-spacing: -.6px;
+            margin: 0
+        }
+
+        .right {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .status {
+            font-size: 12px;
+            color: #777
+        }
+
+        .btn {
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 9px;
+            padding: 9px 12px;
+            color: inherit
+        }
+
+        .btn:hover {
+            background: #f3f3f0
+        }
+
+        .primary {
+            background: #242824;
+            color: #fff;
+            border-color: #242824
+        }
+
+        .primary:hover {
+            background: #383d38
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            height: calc(100dvh - 62px)
+        }
+
+        aside {
+            border-right: 1px solid #e4e5e1;
+            background: #fbfbfa;
+            display: flex;
+            flex-direction: column;
+            min-height: 0
+        }
+
+        .aside-top {
+            padding: 17px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            gap: 12px
+        }
+
+        .search {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e6e2;
+            border-radius: 9px;
+            outline: none;
+            background: #fff
+        }
+
+        .items {
+            overflow: auto;
+            flex: 1;
+            padding: 9px
+        }
+
+        .item {
+            border: 0;
+            background: none;
+            width: 100%;
+            text-align: left;
+            padding: 15px 13px;
+            border-radius: 10px;
+            display: block;
+            color: inherit;
+            margin-bottom: 3px
+        }
+
+        .item:hover {
+            background: #f1f1ed
+        }
+
+        .item.active {
+            background: #eaece7
+        }
+
+        .item-title {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .item-preview {
+            font-size: 13px;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-top: 5px
+        }
+
+        .item-date {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 9px
+        }
+
+        .empty-list {
+            color: #aaa;
+            text-align: center;
+            margin: 30px 12px;
+            font-size: 13px
+        }
+
+        .editor {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0
+        }
+
+        .editor-bar {
+            padding: 17px 26px;
+            display: flex;
+            justify-content: flex-end
+        }
+
+        .editor-inner {
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 25px 45px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0
+        }
+
+        #title {
+            font-size: 30px;
+            font-weight: 650;
+            letter-spacing: -.8px;
+            border: 0;
+            background: transparent;
+            outline: 0;
+            width: 100%;
+            padding: 7px 0
+        }
+
+        #body {
+            font-size: 16px;
+            line-height: 1.75;
+            resize: none;
+            outline: 0;
+            border: 0;
+            background: transparent;
+            width: 100%;
+            flex: 1;
+            padding: 15px 0 80px;
+            color: #303530
+        }
+
+        .placeholder {
+            display: grid;
+            place-items: center;
+            flex: 1;
+            text-align: center;
+            color: #999;
+            padding: 20px
+        }
+
+        .placeholder strong {
+            font-size: 18px;
+            color: #666
+        }
+
+        .login {
+            max-width: 390px;
+            margin: 14vh auto;
+            padding: 30px;
+            background: white;
+            border: 1px solid #e7e8e4;
+            border-radius: 16px
+        }
+
+        .login p {
+            color: #888;
+            line-height: 1.6
+        }
+
+        .login input {
+            padding: 13px;
+            margin: 8px 0;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 9px
+        }
+
+        .login .btn {
+            width: 100%;
+            margin-top: 10px
+        }
+
+        .message {
+            color: #aa4b36;
+            font-size: 13px;
+            min-height: 20px
+        }
+
+        .muted {
+            font-size: 12px;
+            color: #888
+        }
+
+        .mobile-back {
+            display: none
+        }
+
+        @media(max-width:650px) {
+            header {
+                padding: 0 15px
+            }
+
+            .status {
+                max-width: 110px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap
+            }
+
+            .shell {
+                display: block;
+                height: calc(100dvh - 62px)
+            }
+
+            aside {
+                height: 100%
+            }
+
+            .editor {
+                height: 100%
+            }
+
+            .shell.open aside {
+                display: none
+            }
+
+            .shell:not(.open) .editor {
+                display: none
+            }
+
+            .mobile-back {
+                display: inline-block
+            }
+
+            .editor-bar {
+                justify-content: space-between;
+                padding: 12px 15px
+            }
+
+            .editor-inner {
+                padding: 8px 23px
+            }
+
+            #title {
+                font-size: 26px
+            }
+
+            #body {
+                font-size: 16px
+            }
+
+            .login {
+                margin: 10vh 18px
+            }
+
+            .right {
+                gap: 7px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section id="auth" class="login hidden">
+        <h1>Notes.</h1>
+        <p>Ghi nhanh, đơn giản, đồng bộ giữa các thiết bị.</p>
+        <form id="authForm"><input id="email" type="email" placeholder="Email" autocomplete="email" required><input
+                id="password" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" minlength="6"
+                autocomplete="current-password" required><button id="loginBtn" class="btn primary" type="submit">Đăng
+                nhập</button></form><button id="registerBtn" class="btn">Tạo tài khoản</button>
+        <p id="authMsg" class="message"></p>
+        <div class="muted">Dùng cùng một tài khoản trên mọi thiết bị.</div>
+    </section>
+    <div id="app" class="hidden">
+        <header>
+            <h1>Notes.</h1>
+            <div class="right"><span id="status" class="status">Đang tải...</span><button id="syncBtn" class="btn"
+                    title="Đồng bộ">↻</button><button id="logoutBtn" class="btn">Thoát</button></div>
+        </header>
+        <div id="shell" class="shell">
+            <aside>
+                <div class="aside-top"><button id="addBtn" class="btn primary">+ Ghi chú mới</button><input id="search"
+                        class="search" placeholder="Tìm ghi chú..." aria-label="Tìm ghi chú"></div>
+                <div id="items" class="items"></div>
+            </aside>
+            <main class="editor">
+                <div id="editorBar" class="editor-bar hidden"><button id="backBtn" class="btn mobile-back">← Danh
+                        sách</button><button id="deleteBtn" class="btn">Xóa ghi chú</button></div>
+                <div id="empty" class="placeholder">
+                    <div><strong>Chưa chọn ghi chú</strong>
+                        <p>Chọn một ghi chú hoặc tạo mới.</p>
+                    </div>
+                </div>
+                <div id="editArea" class="editor-inner hidden"><input id="title" placeholder="Tiêu đề"
+                        aria-label="Tiêu đề"><textarea id="body" placeholder="Bắt đầu viết..."
+                        aria-label="Nội dung"></textarea></div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
+    <script>
+        'use strict';
+        // THAY HAI DÒNG NÀY bằng thông tin Project Settings -> API Keys của Supabase.
+        const SUPABASE_URL = 'clyshqnbxapwipacbaxd';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_PjIKGYDdjqB_bYPOKe6rLw_11cITutH';
+        const $ = id => document.getElementById(id);
+        const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_PUBLISHABLE_KEY.startsWith('PASTE_');
+        let sb, user = null, notes = [], selected = null, syncing = false, timer = null, authReady = false;
+        const cacheKey = () => `tiny-notes-v1-${user.id}`;
+        function persist() { if (user) try { localStorage.setItem(cacheKey(), JSON.stringify(notes)) } catch (e) { status('Bộ nhớ thiết bị đã đầy') } }
+        function loadCache() { try { const data = JSON.parse(localStorage.getItem(cacheKey()) || '[]'); return Array.isArray(data) ? data : [] } catch { return [] } }
+        function status(s) { $('status').textContent = s }
+        function fmt(ts) { return new Date(ts).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) }
+        function render() { const q = $('search').value.trim().toLocaleLowerCase(); const list = notes.filter(n => !n.deleted && (n.title + ' ' + n.body).toLocaleLowerCase().includes(q)).sort((a, b) => b.updated_at.localeCompare(a.updated_at)); const root = $('items'); root.replaceChildren(); for (const n of list) { const btn = document.createElement('button'); btn.className = 'item' + (n.id === selected ? ' active' : ''); const t = document.createElement('div'); t.className = 'item-title'; t.textContent = n.title.trim() || 'Không có tiêu đề'; const p = document.createElement('div'); p.className = 'item-preview'; p.textContent = n.body.replace(/\s+/g, ' ').slice(0, 100) || 'Ghi chú trống'; const d = document.createElement('div'); d.className = 'item-date'; d.textContent = fmt(n.updated_at) + (n.dirty ? ' · Chưa đồng bộ' : ''); btn.append(t, p, d); btn.onclick = () => pick(n.id); root.append(btn) } if (!list.length) { const el = document.createElement('div'); el.className = 'empty-list'; el.textContent = 'Chưa có ghi chú'; root.append(el) } const n = notes.find(x => x.id === selected && !x.deleted); $('editArea').classList.toggle('hidden', !n); $('empty').classList.toggle('hidden', !!n); $('editorBar').classList.toggle('hidden', !n); if (n && document.activeElement !== $('title') && document.activeElement !== $('body')) { $('title').value = n.title; $('body').value = n.body } }
+        function pick(id) { selected = id; document.activeElement?.blur(); render(); const n = notes.find(x => x.id === id); if (n) { $('title').value = n.title; $('body').value = n.body } $('shell').classList.add('open') }
+        function newNote() { const n = { id: crypto.randomUUID(), user_id: user.id, title: '', body: '', updated_at: new Date().toISOString(), deleted: false, dirty: true }; notes.unshift(n); persist(); pick(n.id); $('title').focus(); schedule() }
+        function updateNote() { const n = notes.find(x => x.id === selected); if (!n) return; n.title = $('title').value; n.body = $('body').value; n.updated_at = new Date().toISOString(); n.dirty = true; persist(); render(); status('Đã lưu trên thiết bị'); schedule() }
+        function schedule() { clearTimeout(timer); timer = setTimeout(sync, 1300) }
+        async function sync() {
+            if (syncing || !user || !navigator.onLine) return; syncing = true; status('Đang đồng bộ...'); try {
+                const { data: sessionData, error: sessionError } = await sb.auth.getSession(); if (sessionError || !sessionData.session) throw Error('Chưa có phiên đăng nhập hợp lệ'); const pending = notes.filter(n => n.dirty); if (pending.length) { const payload = pending.map(({ dirty, ...rest }) => rest); const { error } = await sb.from('notes').upsert(payload, { onConflict: 'id' }); if (error) throw error; for (const p of pending) { const current = notes.find(x => x.id === p.id); if (current && current.updated_at === p.updated_at) current.dirty = false } persist() }
+                const { data, error } = await sb.from('notes').select('id,user_id,title,body,updated_at,deleted').order('updated_at', { ascending: false }).limit(5000); if (error) throw error; const map = new Map(data.map(n => [n.id, { ...n, dirty: false }])); for (const n of notes) if (n.dirty || !map.has(n.id) && n.dirty) map.set(n.id, n); notes = [...map.values()]; persist(); render(); status(notes.some(n => n.dirty) ? 'Còn thay đổi chưa gửi' : 'Đã đồng bộ')
+            } catch (e) { status('Chưa đồng bộ · ' + (navigator.onLine ? 'Thử lại' : 'Offline')); console.warn(e) } finally { syncing = false }
+        }
+        async function startSession(nextUser) { user = nextUser; notes = loadCache(); selected = null; $('auth').classList.add('hidden'); $('app').classList.remove('hidden'); $('shell').classList.remove('open'); render(); status('Đã tải ghi chú cục bộ'); await sync() }
+        function showAuth() { user = null; notes = []; selected = null; $('app').classList.add('hidden'); $('auth').classList.remove('hidden') }
+        async function init() { if (!configured) { $('auth').classList.remove('hidden'); $('authMsg').textContent = 'Chưa cấu hình SUPABASE_URL và SUPABASE_PUBLISHABLE_KEY trong index.html'; return } if (!window.supabase) { $('auth').classList.remove('hidden'); $('authMsg').textContent = 'Không tải được thư viện Supabase. Kết nối Internet để mở lần đầu.'; return } sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY); const { data: { session } } = await sb.auth.getSession(); if (session?.user) await startSession(session.user); else showAuth(); authReady = true }
+        $('authForm').onsubmit = async e => { e.preventDefault(); if (!sb) return; $('authMsg').textContent = ''; const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value }); if (error) { $('authMsg').textContent = error.message; return } await startSession(data.user) };
+        $('registerBtn').onclick = async () => { if (!sb) return; const email = $('email').value.trim(), password = $('password').value; if (!email || password.length < 6) { $('authMsg').textContent = 'Nhập email và mật khẩu ít nhất 6 ký tự'; return } const { data, error } = await sb.auth.signUp({ email, password }); $('authMsg').textContent = error ? error.message : (data.session ? 'Tạo tài khoản thành công.' : 'Kiểm tra email để xác nhận tài khoản, sau đó đăng nhập.'); if (data.session?.user) await startSession(data.session.user) };
+        $('logoutBtn').onclick = async () => { if (!sb) return; const { error } = await sb.auth.signOut(); if (error) { status('Không thể đăng xuất: ' + error.message); return } showAuth() };
+        $('addBtn').onclick = newNote; $('search').oninput = render; $('title').oninput = updateNote; $('body').oninput = updateNote; $('syncBtn').onclick = sync;
+        $('backBtn').onclick = () => { $('shell').classList.remove('open'); document.activeElement?.blur() };
+        $('deleteBtn').onclick = () => { if (!confirm('Xóa ghi chú này?')) return; const n = notes.find(x => x.id === selected); if (!n) return; n.deleted = true; n.dirty = true; n.updated_at = new Date().toISOString(); selected = null; persist(); $('shell').classList.remove('open'); render(); schedule() };
+        window.addEventListener('online', sync); document.addEventListener('visibilitychange', () => { if (!document.hidden) sync() }); setInterval(() => { if (user) sync() }, 25000);
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => { });
+        init();
+    </script>
+</body>
+
+</html>
