@@ -1,0 +1,4 @@
+[functions.notebyme-api]
+# The handler authenticates opaque app sessions itself; Supabase JWTs never
+# leave the backend. Login and OPTIONS must be reachable without an API key.
+verify_jwt = false

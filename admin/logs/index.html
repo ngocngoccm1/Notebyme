@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src https://clyshqnbxapwipacbaxd.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Nhật ký hệ thống | Notes</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script type="module" src="../../assets/admin.js"></script>
+</head>
+<body>
+  <header><h1>Notes. <span class="muted admin-label">Nhật ký hệ thống</span></h1><a class="btn" href="../../">Về ghi chú</a></header>
+  <main class="admin-main">
+    <section id="adminAuth" class="admin-login">
+      <h2>Đăng nhập quản trị</h2>
+      <p>Nhật ký lỗi và hoạt động của backend. Chỉ người quản trị được truy cập.</p>
+      <form id="adminForm"><label for="adminPassword">Mật khẩu quản trị</label><input id="adminPassword" type="password" autocomplete="current-password" required maxlength="1024"><button id="adminLoginBtn" class="btn primary" type="submit">Xem nhật ký</button></form>
+    </section>
+    <p id="adminMessage" class="message" role="status" aria-live="polite">Đang kiểm tra phiên...</p>
+    <section id="logPanel" class="hidden">
+      <div class="log-toolbar"><div><h2>Nhật ký backend</h2><p class="muted">Tối đa 200 sự kiện gần nhất. Mật khẩu, token và nội dung ghi chú không được ghi vào nhật ký.</p></div><button id="adminLogoutBtn" class="btn">Đăng xuất quản trị</button></div>
+      <div class="log-filters"><label>Mức độ<select id="logLevel"><option value="">Tất cả</option><option value="error">Lỗi</option><option value="warn">Cảnh báo</option><option value="info">Thông tin</option></select></label><label class="log-search">Tra cứu sự kiện hoặc mã request<input id="logSearch" type="search" placeholder="Dán mã tra cứu từ thông báo lỗi"></label><button id="refreshLogs" class="btn primary">Làm mới</button></div>
+      <p id="logSummary" class="muted" aria-live="polite"></p>
+      <div class="log-table-wrap"><table class="log-table"><caption class="sr-only">Nhật ký hệ thống</caption><thead><tr><th>Thời gian</th><th>Mức độ</th><th>Sự kiện</th><th>Mã lỗi / API</th><th>HTTP</th><th>Request ID</th></tr></thead><tbody id="logRows"></tbody></table></div>
+    </section>
+    <noscript>Vui lòng bật JavaScript để xem nhật ký.</noscript>
+  </main>
+</body>
+</html>

@@ -1,0 +1,3 @@
+{
+  "compilerOptions": { "allowJs": true, "checkJs": false, "lib": ["deno.ns", "dom", "esnext"] }
+}
