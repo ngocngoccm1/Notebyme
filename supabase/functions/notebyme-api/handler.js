@@ -50,7 +50,7 @@ function validateNotes(value) {
   });
 }
 
-export function createHandler({ storage, gateway, cipher, functionName = 'notebyme-api' }) {
+export function createHandler({ storage, gateway, cipher, defer, functionName = 'notebyme-api' }) {
   let originsCache;
   async function origins() {
     if (!originsCache || originsCache.until < Date.now()) {
@@ -211,11 +211,14 @@ export function createHandler({ storage, gateway, cipher, functionName = 'noteby
     }
     // Bound application-log writes for unauthenticated abuse. Successful health
     // probes and rate-limited retries do not fill the durable log table.
-    const shouldLog = status !== 429 && !(route === '/health' && status === 200) &&
-      (status < 400 || await storage.limit('logs:failures', 20, 60).catch(() => false));
-    if (shouldLog) await record(event, { requestId, code, status, route, count, duration: performance.now() - started, level: status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info' });
-    // Bounded retention. Cleanup never includes note data.
-    if (Math.random() < 0.01) await storage.cleanup().catch(() => {});
+    const logging = async () => {
+      const shouldLog = status !== 429 && !(route === '/health' && status === 200) &&
+        (status < 400 || await storage.limit('logs:failures', 20, 60).catch(() => false));
+      if (shouldLog) await record(event, { requestId, code, status, route, count, duration: performance.now() - started, level: status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info' });
+      // Bounded retention. Cleanup never includes note data.
+      if (Math.random() < 0.01) await storage.cleanup().catch(() => {});
+    };
+    if (defer) defer(logging()); else await logging();
     return new Response(JSON.stringify({ ...result, requestId }), { status, headers: responseHeaders });
   };
 }

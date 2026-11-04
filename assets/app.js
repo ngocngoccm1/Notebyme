@@ -4,7 +4,7 @@ import { synchronize } from './sync.js';
 
 const $ = id => document.getElementById(id);
 let store = null, selected = null, epoch = 0, syncing = false, syncAgain = false;
-let timer, saveTimer, listTimer, cacheOkay = true;
+let timer, saveTimer, listTimer, cacheOkay = true, initializing = false;
 let controller = new AbortController();
 const fmt = timestamp => new Date(timestamp).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -129,9 +129,12 @@ $('backBtn').onclick = () => { $('shell').classList.remove('open'); document.act
 $('search').oninput = () => { clearTimeout(listTimer); listTimer = setTimeout(renderList, 100); };
 $('title').oninput = updateNote; $('body').oninput = updateNote; $('syncBtn').onclick = sync;
 async function init() {
+  if (initializing) return;
+  initializing = true; authBusy(true); $('retryBtn').disabled = true;
   $('authMsg').textContent = 'Đang kết nối máy chủ...';
   try { const data = await request('/session'); if (data.user) await startSession(data.user); else showAuth(); }
   catch (error) { showAuth(explain(error)); report('client.startup_failed'); }
+  finally { initializing = false; authBusy(false); $('retryBtn').disabled = false; }
 }
 $('retryBtn').onclick = init;
 window.addEventListener('online', sync);

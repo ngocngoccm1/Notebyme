@@ -23,10 +23,11 @@ export async function request(path, { method = 'GET', data, signal, admin = fals
   try {
     response = await fetch(API_URL + path, {
       method, headers, body: data === undefined ? undefined : JSON.stringify(data),
-      cache: 'no-store', credentials: 'omit', signal: signal || AbortSignal.timeout(25000)
+      cache: 'no-store', credentials: 'omit', signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(25000)]) : AbortSignal.timeout(25000)
     });
   } catch (error) {
     if (signal?.aborted) throw error;
+    if (method === 'GET' && retry < 1) return request(path, { method, data, signal, admin, retry: retry + 1 });
     throw new ApiError('NETWORK_ERROR');
   }
   let result;
