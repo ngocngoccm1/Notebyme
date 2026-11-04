@@ -1,0 +1,133 @@
+name: Build native apps
+on:
+  push:
+    branches: [main]
+    paths: ['native/**', '.github/workflows/native.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: native-builds
+  cancel-in-progress: true
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - name: Profile scrolling and typing
+        run: flutter drive --profile -d windows --driver=test_driver/performance.dart --target=integration_test/performance_test.dart
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Notes-performance-windows
+          path: native/build/performance/
+          if-no-files-found: warn
+      - run: flutter build windows --release --build-number ${{ github.run_number }}
+      - run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath Notes-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Notes-windows-x64
+          path: native/Notes-windows-x64.zip
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release --build-number ${{ github.run_number }}
+      - run: cp build/app/outputs/flutter-apk/app-release.apk Notes-android.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Notes-android
+          path: native/Notes-android.apk
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release --build-number ${{ github.run_number }}
+      - run: ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/Notes.app Notes-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Notes-macos
+          path: native/Notes-macos.zip
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign --build-number ${{ github.run_number }}
+      - run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app Notes-ios-unsigned.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Notes-ios-unsigned
+          path: native/Notes-ios-unsigned.zip
+  publish:
+    needs: [windows, android, macos, ios]
+    if: ${{ !cancelled() && (needs.windows.result == 'success' || needs.android.result == 'success' || needs.macos.result == 'success') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Notes-*
+          path: releases
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: native-latest
+          name: Notes native apps
+          make_latest: true
+          files: |
+            releases/Notes-windows-x64.zip
+            releases/Notes-android.apk
+            releases/Notes-macos.zip
+            releases/Notes-ios-unsigned.zip
+          body: |
+            Native Flutter clients, without WebView. Same username, four-digit PIN and synced notes as the website.
+            Windows: unzip the entire folder and run Notes.exe.
+            Android: release-mode test APK with development signing. Production signing is needed for consistent upgrades and store distribution.
+            macOS: standalone build without Developer ID notarization.
+            iOS: unsigned build for developer signing; it cannot be directly installed on an iPhone.
+            Performance reports are available in this workflow's Notes-performance-windows artifact.
