@@ -13,6 +13,7 @@ export function createStorage(url, key) {
   return {
     setting: key => checked(sb.from('backend_settings').select('value').eq('key', key).maybeSingle()).then(row => row?.value),
     limit: (key, maximum, seconds) => checked(sb.rpc('backend_rate_limit', { p_key: key, p_limit: maximum, p_seconds: seconds })),
+    clearLimit: key => checked(sb.from('backend_rate_limits').delete().eq('key', key)),
     createSession: row => checked(sb.from('backend_sessions').insert(row)),
     getSession: tokenHash => checked(sb.from('backend_sessions').select('*').eq('token_hash', tokenHash).gt('expires_at', new Date().toISOString()).maybeSingle()),
     updateSession: (tokenHash, cipher) => checked(sb.from('backend_sessions').update({ cipher }).eq('token_hash', tokenHash)),

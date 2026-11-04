@@ -50,12 +50,15 @@ export async function request(path, { method = 'GET', data, signal, admin = fals
 const messages = {
   NETWORK_ERROR: 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.',
   BACKEND_UNAVAILABLE: 'Máy chủ đang gặp sự cố.', BACKEND_NOT_CONFIGURED: 'Máy chủ chưa sẵn sàng.',
-  AUTH_UNAVAILABLE: 'Dịch vụ đăng nhập đang gặp sự cố.', LOGIN_FAILED: 'Email hoặc mật khẩu không đúng.',
-  REGISTRATION_FAILED: 'Chưa thể tạo tài khoản. Kiểm tra email hoặc thử lại sau.',
+  AUTH_UNAVAILABLE: 'Dịch vụ đăng nhập đang gặp sự cố.', LOGIN_FAILED: 'Tên đăng nhập hoặc mật khẩu không đúng.',
+  REGISTRATION_FAILED: 'Chưa thể tạo tài khoản. Vui lòng thử lại sau.',
+  USERNAME_TAKEN: 'Tên đăng nhập này đã được sử dụng.',
+  INVALID_USERNAME: 'Tên đăng nhập từ 1 đến 32 ký tự, gồm chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.',
+  INVALID_PIN: 'Mật khẩu cần đúng 4 chữ số.',
+  LOGIN_RATE_LIMITED: 'Đã thử sai quá nhiều lần. Vui lòng chờ 15 phút rồi thử lại.',
   SESSION_EXPIRED: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
   ADMIN_REQUIRED: 'Đăng nhập quản trị để xem nhật ký.', ADMIN_LOGIN_FAILED: 'Mật khẩu quản trị không đúng.',
   ADMIN_NOT_CONFIGURED: 'Trang nhật ký chưa được cấu hình.', RATE_LIMITED: 'Bạn thao tác quá nhanh. Vui lòng thử lại sau.',
-  PASSWORD_TOO_SHORT: 'Mật khẩu tài khoản mới cần ít nhất 8 ký tự.', INVALID_CREDENTIALS: 'Kiểm tra lại email và mật khẩu.',
   INVALID_NOTES: 'Ghi chú quá dài hoặc dữ liệu không hợp lệ. Tiêu đề tối đa 500 ký tự, nội dung tối đa 100.000 ký tự.',
   NOTES_READ_FAILED: 'Chưa tải được ghi chú từ máy chủ.', NOTES_WRITE_FAILED: 'Chưa gửi được thay đổi lên máy chủ.',
   SESSION_BUSY: 'Một thao tác khác đang chạy. Vui lòng thử lại.', ORIGIN_REJECTED: 'Địa chỉ website chưa được máy chủ cho phép.'

@@ -15,8 +15,8 @@
     <section id="auth" class="login">
         <h1>Notes.</h1>
         <p>Ghi nhanh, đơn giản, đồng bộ giữa các thiết bị.</p>
-        <form id="authForm"><input id="email" type="email" placeholder="Email" autocomplete="email" required><input
-                id="password" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" minlength="6"
+        <form id="authForm"><input id="username" type="text" placeholder="Tên đăng nhập" aria-label="Tên đăng nhập" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="32" required><input
+                id="password" type="password" placeholder="Mật khẩu 4 chữ số" aria-label="Mật khẩu 4 chữ số" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4"
                 autocomplete="current-password" required><button id="loginBtn" class="btn primary" type="submit">Đăng
                 nhập</button></form><button id="registerBtn" class="btn">Tạo tài khoản</button>
         <p id="authMsg" class="message" role="status" aria-live="polite">Đang kết nối máy chủ...</p>

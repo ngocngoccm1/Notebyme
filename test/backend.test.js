@@ -18,7 +18,7 @@ async function fixture() {
   const cipher = createCipher('test-server-key-never-sent-to-browser');
   const settings = { allowed_origins: [origin], admin_password: { salt, digest } };
   const storage = {
-    setting: async key => settings[key], limit: async () => true,
+    setting: async key => settings[key], limit: async () => true, clearLimit: async () => {},
     createSession: async row => rows.set(row.token_hash, structuredClone(row)),
     getSession: async key => rows.get(key), deleteSession: async key => rows.delete(key),
     claimSession: async (key, lease) => { const row = rows.get(key); if (!row || row.lease) return null; row.lease = lease; return { ...row }; },
@@ -39,7 +39,7 @@ async function fixture() {
     const response = await handler(new Request('https://backend.example/functions/v1/notebyme-api' + path, { method, headers, body: data === undefined ? undefined : JSON.stringify(data) }));
     return { response, data: response.status === 204 ? null : await response.json() };
   }
-  async function login() { return (await call('/login', { method: 'POST', data: { email: 'person@example.com', password: 'password123' } })).data.session; }
+  async function login() { return (await call('/login', { method: 'POST', data: { username: 'ngoc', password: '0123' } })).data.session; }
   return { call, login, storage, gateway, logs, rows, saved, cipher };
 }
 
@@ -60,7 +60,7 @@ test('login returns only an opaque app session; database stores encrypted Supaba
   const row = f.rows.get(await hash(token));
   assert.ok(row); assert.ok(!JSON.stringify(row).includes(privateAccess));
   assert.equal((await f.cipher.open(row.cipher)).refreshToken, privateRefresh);
-  assert.ok(!JSON.stringify(f.logs).includes('password123'));
+  assert.ok(f.logs.every(row => !('password' in row) && !('username' in row)));
   const session = await f.call('/session', { token });
   assert.deepEqual(session.data.user, { id: uid });
   assert.ok(!JSON.stringify(session.data).includes(privateAccess));
@@ -88,7 +88,7 @@ test('note owner is derived from verified server session, never from request bod
 test('upstream errors never leak exception messages, credentials or note data', async () => {
   const f = await fixture();
   f.gateway.login = async () => { throw new Error('service_role SECRET_PRIVATE_PASSWORD'); };
-  const result = await f.call('/login', { method: 'POST', data: { email: 'person@example.com', password: 'password123' } });
+  const result = await f.call('/login', { method: 'POST', data: { username: 'ngoc', password: '0123' } });
   assert.equal(result.response.status, 503);
   assert.equal(result.data.error, 'BACKEND_UNAVAILABLE');
   assert.match(result.data.requestId, /^[0-9a-f-]{36}$/);
@@ -126,7 +126,7 @@ test('server-side rate limit blocks brute force before authentication', async ()
   const f = await fixture(); let called = false;
   f.storage.limit = async () => false;
   f.gateway.login = async () => { called = true; };
-  const result = await f.call('/login', { method: 'POST', data: { email: 'a@b.co', password: '12345678' } });
+  const result = await f.call('/login', { method: 'POST', data: { username: 'ngoc', password: '0123' } });
   assert.equal(result.response.status, 429); assert.equal(called, false);
 });
 
@@ -142,4 +142,16 @@ test('logout revokes the app session even if upstream sign-out is unavailable', 
   f.gateway.logout = async () => { throw new ApiError(503, 'LOGOUT_UPSTREAM_FAILED'); };
   assert.equal((await f.call('/logout', { method: 'POST', token, data: {} })).response.status, 200);
   assert.equal((await f.call('/session', { token })).response.status, 401);
+});
+
+test('five failed PIN attempts lock the normalized username before further checks', async () => {
+  const f = await fixture(); let attempts = 0; const counts = new Map();
+  f.storage.limit = async (key, max) => {
+    if (!key.startsWith('pin:')) return true;
+    counts.set(key, (counts.get(key) || 0) + 1); return counts.get(key) <= max;
+  };
+  f.gateway.login = async () => { attempts++; throw new ApiError(401, 'LOGIN_FAILED'); };
+  for (let i = 0; i < 5; i++) assert.equal((await f.call('/login', { method: 'POST', data: { username: i % 2 ? 'Ngoc' : 'ngoc', password: '0000' } })).response.status, 401);
+  const blocked = await f.call('/login', { method: 'POST', data: { username: 'NGOC', password: '0000' } });
+  assert.equal(blocked.response.status, 429); assert.equal(blocked.data.error, 'LOGIN_RATE_LIMITED'); assert.equal(attempts, 5);
 });

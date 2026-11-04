@@ -92,19 +92,17 @@ function authBusy(busy) { $('loginBtn').disabled = busy; $('registerBtn').disabl
 $('authForm').onsubmit = async event => {
   event.preventDefault(); authBusy(true); $('authMsg').textContent = 'Đang đăng nhập...';
   try {
-    const data = await request('/login', { method: 'POST', data: { email: $('email').value.trim(), password: $('password').value } });
+    const data = await request('/login', { method: 'POST', data: { username: $('username').value.trim(), password: $('password').value } });
     await startSession(data.user);
   } catch (error) { $('authMsg').textContent = explain(error); }
   finally { $('password').value = ''; authBusy(false); }
 };
 $('registerBtn').onclick = async () => {
-  if (!$('email').reportValidity()) return;
-  if ($('password').value.length < 8) { $('authMsg').textContent = 'Mật khẩu tài khoản mới cần ít nhất 8 ký tự.'; return; }
+  if (!$('username').reportValidity() || !$('password').reportValidity()) return;
   authBusy(true);
   try {
-    const data = await request('/register', { method: 'POST', data: { email: $('email').value.trim(), password: $('password').value } });
-    if (data.user) await startSession(data.user);
-    else $('authMsg').textContent = 'Kiểm tra email để xác nhận tài khoản, sau đó đăng nhập.';
+    const data = await request('/register', { method: 'POST', data: { username: $('username').value.trim(), password: $('password').value } });
+    await startSession(data.user);
   } catch (error) { $('authMsg').textContent = explain(error); }
   finally { $('password').value = ''; authBusy(false); }
 };

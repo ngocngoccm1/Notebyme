@@ -1,4 +1,4 @@
-const CACHE = 'tiny-notes-backend-v4';
+const CACHE = 'tiny-notes-backend-v5';
 const FILES = ['./', './index.html', './assets/styles.css', './assets/app.js', './assets/api.js', './assets/config.js', './assets/notes-store.js', './assets/sync.js'];
 const allowed = new Set(FILES.map(path => new URL(path, self.registration.scope).href));
 self.addEventListener('install', event => {

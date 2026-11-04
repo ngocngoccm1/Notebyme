@@ -1,24 +1,25 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { ApiError } from './errors.js';
+import { createUsernameAuth } from './username-auth.js';
 function authError(error, fallback) {
   if (error?.status === 429) throw new ApiError(429, 'RATE_LIMITED');
   if ([400, 401, 403].includes(error?.status)) throw new ApiError(401, fallback || 'SESSION_EXPIRED');
   throw new ApiError(503, 'AUTH_UNAVAILABLE');
 }
 
-export function createGateway(url, key) {
+export function createGateway(url, key, serverKey, storage) {
   const client = () => createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { fetch: (input, options = {}) => fetch(input, { ...options, signal: AbortSignal.timeout(12000) }) }
   });
+  const admin = createClient(url, serverKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { fetch: (input, options = {}) => fetch(input, { ...options, signal: AbortSignal.timeout(12000) }) } });
   return {
-    async login(email, password, register = false) {
-      const sb = client();
-      const { data, error } = register ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
-      if (error) authError(error, register ? 'REGISTRATION_FAILED' : 'LOGIN_FAILED');
-      if (!data.session) return null;
-      return { userId: data.user.id, accessToken: data.session.access_token, refreshToken: data.session.refresh_token };
-    },
+    login: createUsernameAuth({
+      getPepper: () => storage.setting('pin_pepper'),
+      signIn: identity => client().auth.signInWithPassword(identity),
+      createUser: identity => admin.auth.admin.createUser(identity)
+    }),
     async authenticate(session) {
       const sb = client();
       const { data, error } = await sb.auth.setSession({ access_token: session.accessToken, refresh_token: session.refreshToken });

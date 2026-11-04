@@ -3,6 +3,10 @@ create table if not exists public.backend_settings (
   key text primary key,
   value jsonb not null
 );
+-- Stable server-only PIN pepper. Never replace it for an existing installation.
+insert into public.backend_settings (key, value)
+values ('pin_pepper', to_jsonb(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')))
+on conflict (key) do nothing;
 create table if not exists public.backend_sessions (
   token_hash text primary key,
   role text not null check (role in ('user', 'admin')),

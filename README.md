@@ -1,5 +1,7 @@
 # Notes
 
+Đăng nhập bằng tên đăng nhập và mật khẩu đúng 4 chữ số. Tạo tài khoản là dùng ngay, không nhập email và không có bước xác nhận.
+
 Ứng dụng ghi chú với frontend trên GitHub Pages và backend trên Supabase Edge Functions. Không cần thuê thêm host Node.js.
 
 ## Cấu trúc
@@ -30,7 +32,7 @@ Log chỉ ghi sự kiện, mã lỗi, HTTP status, thời gian xử lý và requ
 5. Đặt API_URL trong assets/config.js bằng URL function vừa triển khai. Đây là URL công khai, không phải secret. Cập nhật connect-src trong CSP của index.html và admin/logs/index.html nếu đổi project.
 6. Trong GitHub Settings > Pages, chọn Source: GitHub Actions. Workflow chỉ upload index.html, assets, admin và sw.js; không đưa file backend hoặc cấu hình riêng lên Pages.
 
-Các biến server SUPABASE_URL, SUPABASE_ANON_KEY và SUPABASE_SERVICE_ROLE_KEY được Supabase Edge Functions cấp sẵn. Không chép chúng vào frontend. Xác nhận email của tài khoản trước khi đăng nhập nếu Supabase bật email confirmation.
+Các biến server SUPABASE_URL, SUPABASE_ANON_KEY và SUPABASE_SERVICE_ROLE_KEY được Supabase Edge Functions cấp sẵn. Không chép chúng vào frontend. Backend tạo danh tính nội bộ đã xác nhận sẵn; không gửi email. PIN được biến đổi bằng HMAC với pepper riêng ở backend trước khi đưa vào Supabase Auth. Giới hạn 5 lần thử sai cho mỗi tên đăng nhập trong 15 phút.
 
 ## Kiểm tra và chạy frontend cục bộ
 

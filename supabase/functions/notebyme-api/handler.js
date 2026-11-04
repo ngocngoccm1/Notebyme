@@ -1,5 +1,6 @@
 import { ApiError } from './errors.js';
 import { hash, randomId, checkPassword } from './crypto.js';
+import { credentials } from './username-auth.js';
 
 const ROUTES = new Set(['/health', '/session', '/login', '/register', '/logout', '/notes', '/events', '/admin/session', '/admin/login', '/admin/logout', '/admin/logs']);
 const CLIENT_EVENTS = new Set(['client.startup_failed', 'client.sync_failed', 'client.unhandled_error']);
@@ -27,14 +28,6 @@ async function readBody(request, maximum = 2 * 1024 * 1024) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error();
     return value;
   } catch { throw new ApiError(400, 'INVALID_JSON'); }
-}
-
-function credentials(data) {
-  if (typeof data.email !== 'string' || typeof data.password !== 'string' || data.email.length > 254 ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim()) || data.password.length < 6 || data.password.length > 1024) {
-    throw new ApiError(400, 'INVALID_CREDENTIALS');
-  }
-  return { email: data.email.trim(), password: data.password };
 }
 
 function validateNotes(value) {
@@ -153,9 +146,11 @@ export function createHandler({ storage, gateway, cipher, defer, functionName = 
         await rate('public:auth', 30, 60);
         const data = credentials(await readBody(request, 4096));
         const register = route === '/register';
-        if (register && data.password.length < 8) throw new ApiError(400, 'PASSWORD_TOO_SHORT');
-        const auth = await gateway.login(data.email, data.password, register);
-        result = auth ? { user: { id: auth.userId }, session: await establish(auth) } : { user: null, confirmationRequired: true };
+        const accountLimit = 'pin:' + await hash(data.username);
+        if (!await storage.limit(accountLimit, 5, 900)) throw new ApiError(429, 'LOGIN_RATE_LIMITED');
+        const auth = await gateway.login(data.username, data.password, register);
+        await storage.clearLimit(accountLimit).catch(() => {});
+        result = { user: { id: auth.userId }, session: await establish(auth) };
         event = register ? 'auth.register' : 'auth.login';
       } else if (endpoint === 'GET /session') {
         if (!request.headers.get('x-app-session')) result = { user: null };
