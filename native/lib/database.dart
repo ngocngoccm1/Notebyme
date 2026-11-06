@@ -43,7 +43,8 @@ class NotesDatabase implements NoteRepository {
         version: 1,
         onConfigure: (db) async {
           await db.rawQuery('PRAGMA journal_mode = WAL');
-          await db.execute('PRAGMA busy_timeout = 5000');
+          // Android execSQL rejects PRAGMAs that return a result row.
+          await db.rawQuery('PRAGMA busy_timeout = 5000');
         },
         onCreate: (db, _) async {
           await db.execute(

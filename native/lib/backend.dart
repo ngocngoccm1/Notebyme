@@ -29,6 +29,8 @@ class BackendError implements Exception {
       'LOGIN_RATE_LIMITED': 'Đã thử sai nhiều lần. Vui lòng chờ 15 phút.',
       'RATE_LIMITED': 'Bạn thao tác quá nhanh. Vui lòng thử lại sau.',
       'SESSION_EXPIRED': 'Phiên đã hết hạn. Đăng nhập lại để tiếp tục.',
+      'LOCAL_STORAGE_UNAVAILABLE':
+          'Chưa mở được dữ liệu trên máy. Vui lòng đóng và mở lại app để thử lại.',
       'INVALID_NOTES':
           'Tiêu đề tối đa 500 ký tự, nội dung tối đa 100.000 ký tự.',
       'SESSION_BUSY': 'Đang có thao tác khác. Ứng dụng sẽ thử lại.',
