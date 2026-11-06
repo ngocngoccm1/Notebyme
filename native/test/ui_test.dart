@@ -1,10 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notebyme/backend.dart';
 import 'package:notebyme/notes_controller.dart';
 import 'package:notebyme/ui.dart';
 import 'support.dart';
 
 void main() {
+  testWidgets(
+    'connection failure keeps PIN and allows retry without retyping',
+    (tester) async {
+      var attempts = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoginScreen(
+            submit: (username, pin, register) async {
+              attempts++;
+              expect(pin, '0042');
+              if (attempts == 1) throw const BackendError('NETWORK_DNS');
+            },
+          ),
+        ),
+      );
+      await tester.enterText(find.byKey(const Key('username')), 'mobile-test');
+      await tester.enterText(find.byKey(const Key('pin')), '0042');
+      await tester.tap(find.text('Đăng nhập'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('pin')))
+            .controller!
+            .text,
+        '0042',
+      );
+      expect(find.textContaining('NETWORK_DNS'), findsOneWidget);
+      await tester.tap(find.text('Đăng nhập'));
+      await tester.pumpAndSettle();
+      expect(attempts, 2);
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('pin')))
+            .controller!
+            .text,
+        '',
+      );
+    },
+  );
   testWidgets('native login accepts a four-digit PIN starting with zero', (
     tester,
   ) async {

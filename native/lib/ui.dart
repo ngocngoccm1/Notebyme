@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       await widget.submit(_username.text, _pin.text, register);
+      if (mounted) _pin.clear();
     } on BackendError catch (error) {
       if (mounted) setState(() => _error = error.message);
     } catch (_) {
@@ -35,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } finally {
       if (mounted) {
-        _pin.clear();
         setState(() => _busy = false);
       }
     }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'models.dart';
@@ -21,6 +22,15 @@ class BackendError implements Exception {
   String get message {
     const messages = {
       'NETWORK_ERROR': 'Không kết nối được máy chủ. Bản nháp vẫn ở trên máy.',
+      'NETWORK_DNS':
+          'App chưa phân giải được địa chỉ máy chủ. Thử đổi Wi-Fi/4G hoặc kiểm tra DNS riêng trên điện thoại.',
+      'NETWORK_TLS':
+          'App chưa xác thực được kết nối HTTPS. Kiểm tra ngày giờ tự động trên điện thoại.',
+      'NETWORK_TIMEOUT': 'Máy chủ phản hồi quá lâu. Vui lòng thử kết nối lại.',
+      'NETWORK_SOCKET':
+          'Điện thoại chưa mở được kết nối mạng cho app. Kiểm tra quyền dùng Wi-Fi/dữ liệu di động của Notes.',
+      'NETWORK_HTTP':
+          'Kết nối bị ngắt trước khi app nhận đủ phản hồi. Thử lại.',
       'LOGIN_FAILED': 'Tên đăng nhập hoặc mật khẩu không đúng.',
       'INVALID_USERNAME':
           'Tên đăng nhập gồm 1–32 chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.',
@@ -37,7 +47,10 @@ class BackendError implements Exception {
     };
     final message =
         messages[code] ?? 'Máy chủ chưa xử lý được. Vui lòng thử lại.';
-    return requestId.isEmpty ? message : '$message\nMã tra cứu: $requestId';
+    final diagnostic = code.startsWith('NETWORK_') ? '\nMã lỗi: $code' : '';
+    return requestId.isEmpty
+        ? '$message$diagnostic'
+        : '$message$diagnostic\nMã tra cứu: $requestId';
   }
 }
 
@@ -81,6 +94,21 @@ class Backend implements NotesBackend {
           .send(request)
           .then(http.Response.fromStream)
           .timeout(const Duration(seconds: 30));
+    } on TimeoutException {
+      throw BackendError(_closed ? 'CANCELLED' : 'NETWORK_TIMEOUT');
+    } on HandshakeException {
+      throw BackendError(_closed ? 'CANCELLED' : 'NETWORK_TLS');
+    } on SocketException catch (error) {
+      final dns = error.message.toLowerCase().contains('host lookup');
+      throw BackendError(
+        _closed
+            ? 'CANCELLED'
+            : dns
+            ? 'NETWORK_DNS'
+            : 'NETWORK_SOCKET',
+      );
+    } on http.ClientException {
+      throw BackendError(_closed ? 'CANCELLED' : 'NETWORK_HTTP');
     } catch (_) {
       throw BackendError(_closed ? 'CANCELLED' : 'NETWORK_ERROR');
     }

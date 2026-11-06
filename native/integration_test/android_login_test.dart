@@ -11,6 +11,31 @@ import 'package:notebyme/ui.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  if (const bool.fromEnvironment('CHECK_LIVE_BACKEND')) {
+    testWidgets('Android HTTPS reaches the live login endpoint', (
+      tester,
+    ) async {
+      final backend = Backend();
+      try {
+        // A unique nonexistent username verifies real DNS, TLS, Origin and POST
+        // handling without reading user data or creating an account.
+        await expectLater(
+          backend.login(
+            'probe_${DateTime.now().microsecondsSinceEpoch}',
+            '0042',
+          ),
+          throwsA(
+            isA<BackendError>()
+                .having((e) => e.code, 'code', 'LOGIN_FAILED')
+                .having((e) => e.status, 'status', 401)
+                .having((e) => e.requestId, 'requestId', isNotEmpty),
+          ),
+        );
+      } finally {
+        backend.close();
+      }
+    });
+  }
   testWidgets('Android opens local storage and submits username/PIN login', (
     tester,
   ) async {
