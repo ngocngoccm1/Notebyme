@@ -350,9 +350,21 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 .log-table td:first-child { min-width: 155px; }
 .log-table td:last-child { min-width: 240px; font-family: ui-monospace, monospace; font-size: 12px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.downloads-main { max-width: 920px; margin: 0 auto; padding: 64px 28px; }
+.downloads-main h2 { margin: 0 0 16px; font-size: clamp(30px, 5vw, 46px); letter-spacing: -.04em; }
+.download-intro { max-width: 560px; color: #60675f; line-height: 1.7; }
+.download-list { margin-top: 44px; }
+.download-item { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 28px 0; }
+.download-item + .download-item { border-top: 1px solid #dce1d6; }
+.download-item h3 { margin: 0 0 8px; font-size: 21px; }
+.download-item p { max-width: 530px; margin: 0; line-height: 1.6; color: #60675f; }
+.download-item .btn { flex-shrink: 0; min-width: 165px; }
+.download-footer { margin-top: 44px; line-height: 1.8; }
 @media (max-width: 700px) {
   .admin-main { padding: 24px 16px; }
   .admin-label { display: block; margin: 4px 0 0; }
   .log-toolbar { flex-direction: column; }
   .log-filters { align-items: stretch; flex-direction: column; }
+  .downloads-main { padding: 40px 20px; }
+  .download-item { align-items: start; flex-direction: column; gap: 18px; }
 }

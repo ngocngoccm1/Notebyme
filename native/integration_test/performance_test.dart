@@ -10,6 +10,10 @@ import '../test/support.dart';
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('profile 5000 notes and a long document', (tester) async {
+    // The integration binding uses the real keyboard by default. Register the
+    // simulated keyboard so enterText delivers events in profile mode too.
+    tester.testTextInput.register();
+    addTearDown(tester.testTextInput.unregister);
     final directory = await Directory.systemTemp.createTemp(
       'notes-performance-',
     );

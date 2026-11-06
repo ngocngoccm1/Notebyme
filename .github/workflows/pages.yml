@@ -27,7 +27,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html sw.js _site/
-          cp -r assets admin _site/
+          cp -r assets admin downloads _site/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

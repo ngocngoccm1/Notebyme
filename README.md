@@ -1,5 +1,7 @@
 # Notes
 
+Bản app native cho Windows, macOS, Android và iOS nằm trong [native/](native/README.md). Dùng chung tài khoản và backend với web; không chạy giao diện trong WebView. GitHub Actions tạo bản cài và báo cáo kiểm tra hiệu năng. Xem mục ký app trong tài liệu native trước khi phân phối bản mobile/Mac.
+
 Đăng nhập bằng tên đăng nhập và mật khẩu đúng 4 chữ số. Tạo tài khoản là dùng ngay, không nhập email và không có bước xác nhận.
 
 Ứng dụng ghi chú với frontend trên GitHub Pages và backend trên Supabase Edge Functions. Không cần thuê thêm host Node.js.
